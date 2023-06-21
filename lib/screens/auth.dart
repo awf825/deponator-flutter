@@ -1,9 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
-final _db = FirebaseFirestore.instance;
-final _firebase = FirebaseAuth.instance;
+import 'package:deponator_flutter/services/auth_service.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -16,6 +13,7 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   final _form = GlobalKey<FormState>();
+  final _authService = AuthService();
   var _isLogin = true;
   var _enteredEmail = '';
   var _enteredPassword = '';
@@ -31,38 +29,9 @@ class _AuthScreenState extends State<AuthScreen> {
 
     try {
       if (_isLogin) {
-        await _firebase.signInWithEmailAndPassword(
-          email: _enteredEmail, 
-          password: _enteredPassword
-        );
+        await _authService.signIn(_enteredEmail, _enteredPassword);
       } else {
-        await _firebase.createUserWithEmailAndPassword(
-          email: _enteredEmail, 
-          password: _enteredPassword
-        );
-        if (_firebase.currentUser != null) {
-          final uid = _firebase.currentUser!.uid;
-          
-          final user = <String, dynamic>{
-            "uid": uid,
-            "email": _enteredEmail,
-            "resources": {},
-            "_resources": {}
-          };
-
-          _db
-          .collection("users")
-          .add(user)
-          .then(
-            (DocumentReference doc) => {
-              print('DocumentSnapshot added with ID: ${doc}'),
-            }
-          ).catchError(
-            (error) => {
-              throw error,
-            }
-          );
-        };
+        await _authService.signUp(_enteredEmail, _enteredPassword);
       }
     } on FirebaseAuthException catch (error) {
       /*

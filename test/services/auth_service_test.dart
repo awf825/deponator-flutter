@@ -1,5 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:deponator_flutter/models/app_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mockito/mockito.dart';
@@ -14,6 +12,11 @@ void main() async {
   test('signIn should attach a valid uid', () async {
     final result = await mockAuthService.signIn("test1@test.com", "password");
     expect(result.user!.uid, isNotEmpty);
+  });
+  test('logout should remove current user', () async {
+    await mockAuthService.signIn("test1@test.com", "password");
+    await mockAuthService.logOut();
+    expect(mockAuthService.currentUser, isNull);
   });
 }
 
@@ -43,4 +46,7 @@ class MockAuthService extends Mock implements AuthService {
     );
     return result;
   }
+
+  @override
+  logOut() { _mockAuth.signOut(); }
 }

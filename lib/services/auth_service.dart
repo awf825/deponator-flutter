@@ -6,15 +6,19 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  AppUser? _userFromFirebaseUser(User user) {
+  AppUser _userFromFirebaseUser(User? user) {
     // ignore: unnecessary_null_comparison
-    return AppUser(uid: user.uid);
+    return AppUser(uid: user!.uid);
   }
 
   Stream<AppUser> get user {
     return _auth
       .authStateChanges()
-      .map(_userFromFirebaseUser as AppUser Function(User? event));
+      .map(_userFromFirebaseUser);
+  }
+
+  User? get currentUser {
+    return _auth.currentUser;
   }
 
   Future<void> signUp(email, password) async {
@@ -46,7 +50,6 @@ class AuthService {
         }
       );
     }
-
   }
 
   Future<void> signIn(email, password) async {

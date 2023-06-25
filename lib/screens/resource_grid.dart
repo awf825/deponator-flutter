@@ -19,6 +19,7 @@ class ResourceGridScreen extends StatefulWidget {
 
 class _ResourceGridState extends State<ResourceGridScreen> {
   late List<Resource> _filteredItems;
+  var _levelIndex = 0;
   @override
   void initState() {
     super.initState();
@@ -31,17 +32,27 @@ class _ResourceGridState extends State<ResourceGridScreen> {
         .where((item) => item.name == 'item1')
         .toList();
     });
+    _levelIndex++;
   }
 
   void _resetGrid() async {
     setState(() {
       _filteredItems = widget.items;
     });
+    _levelIndex = 0;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: _levelIndex > 0 ? AppBar(
+        actions: [
+          ElevatedButton(
+            onPressed: _resetGrid, 
+            child: const Text('Return to dashboard')
+          ),
+        ]
+      ) : null,
       body: GridView(
             padding: const EdgeInsets.all(24),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -51,10 +62,6 @@ class _ResourceGridState extends State<ResourceGridScreen> {
               mainAxisSpacing: 20,
             ),
             children: [
-              ElevatedButton(
-                onPressed: _resetGrid, 
-                child: const Text('return to dashboard')
-              ),
               for (final item in _filteredItems)
                 ResourceGridItem(
                   resource: item,

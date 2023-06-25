@@ -1,5 +1,4 @@
-import 'dart:convert';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:deponator_flutter/services/data_service.dart';
 import 'package:flutter/material.dart';
 import 'package:deponator_flutter/services/auth_service.dart';
 import 'package:deponator_flutter/widgets/new_resource.dart';
@@ -19,8 +18,8 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   final List<Resource> _resources = [];
   late Future<List<Resource>> _loadedItems;
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
   final _authService = AuthService();
+  final _dataService = DataService();
 
   @override
   void initState() {
@@ -30,24 +29,20 @@ class _DashboardState extends State<Dashboard> {
 
   Future<List<Resource>> _loadItems() async {
     final List<Resource> loadedItems = [];
-    await _db
-      .collection("resources")
-      .where("uid", isEqualTo: _authService.currentUser!.uid)
-      .get().then(
-        (querySnapshot) {
-          for (var docSnapshot in querySnapshot.docs) {
-            final docData = docSnapshot.data();
-            loadedItems.add(
-              Resource(
-                uid: docData['uid'],
-                name: docData['name'],
-                description: docData['description']
-              )
-            );
-          }
-        },
-        onError: (e) => print("Error completing: $e"),
+    final loadedItemsQuerySnapshot = await _dataService.loadItemsByUserId(
+      _authService.currentUser!.uid,
     );
+
+    for (var docSnapshot in loadedItemsQuerySnapshot.docs) {
+      final docData = docSnapshot.data();
+      loadedItems.add(
+        Resource(
+          uid: docData['uid'],
+          name: docData['name'],
+          description: docData['description']
+        )
+      );
+    }
     return loadedItems;
   }
 

@@ -1,10 +1,10 @@
+import 'package:deponator_flutter/services/data_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:deponator_flutter/models/app_user.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final _dataService = DataService();
 
   AppUser _userFromFirebaseUser(User? user) {
     // ignore: unnecessary_null_comparison
@@ -37,18 +37,7 @@ class AuthService {
         "_resources": {}
       };
 
-      _db
-      .collection("users")
-      .add(user)
-      .then(
-        (DocumentReference doc) => {
-          print('DocumentSnapshot added with ID: ${doc}'),
-        }
-      ).catchError(
-        (error) => {
-          throw error,
-        }
-      );
+      _dataService.insertUser(user);
     }
   }
 

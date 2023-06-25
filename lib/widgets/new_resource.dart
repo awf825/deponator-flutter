@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:deponator_flutter/services/data_service.dart';
 import 'package:flutter/material.dart';
 import '../models/resource.dart';
 import '../services/auth_service.dart';
@@ -17,8 +18,8 @@ class _NewResourceState extends State<NewResource> {
   var _enteredName = '';
   var _enteredDescription = '';
   var _isSending = false;
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
   final _authService = AuthService();
+  final _dataService = DataService();
 
   void _saveResource() async {
     if (_formKey.currentState!.validate()) {
@@ -33,12 +34,7 @@ class _NewResourceState extends State<NewResource> {
         "description": _enteredDescription
       };
 
-      _db
-        .collection("resources")
-        .add(data)
-        .then(
-          (documentSnapshot) => print("Added Resource with ID: ${documentSnapshot.id}")
-        );
+      await _dataService.insertResource(data);
 
       if (!mounted) { // i.e !context.mounted
         return;

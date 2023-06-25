@@ -5,6 +5,8 @@ import 'package:deponator_flutter/services/auth_service.dart';
 import 'package:deponator_flutter/widgets/new_resource.dart';
 import 'package:deponator_flutter/models/resource.dart';
 
+import 'package:deponator_flutter/screens/resource_grid.dart';
+
 class Dashboard extends StatefulWidget {
   const Dashboard({ super.key });
 
@@ -104,22 +106,7 @@ class _DashboardState extends State<Dashboard> {
             );
           }
 
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (ctx, index) => Dismissible(
-              // onDismissed: (direction) {
-              //   _removeItem(snapshot.data![index]);
-              // },
-              key: ValueKey(snapshot.data![index].name),
-              child: ListTile(
-                title: Text(snapshot.data![index].name),
-                leading: const SizedBox(
-                  width: 24,
-                  height: 24
-                ),
-              ),
-            )
-          );
+          return ResourceGridScreen(items: snapshot.data!);
         }
       )
     );

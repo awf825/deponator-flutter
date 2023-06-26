@@ -1,34 +1,39 @@
+import 'package:deponator_flutter/providers/grid_data_provider.dart';
 import 'package:deponator_flutter/services/data_service.dart';
+import 'package:deponator_flutter/widgets/resource_grid_item.dart';
 import 'package:flutter/material.dart';
 import 'package:deponator_flutter/services/auth_service.dart';
 import 'package:deponator_flutter/widgets/new_resource.dart';
 import 'package:deponator_flutter/models/resource.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:deponator_flutter/screens/resource_grid.dart';
-
-class Dashboard extends StatefulWidget {
+class Dashboard extends ConsumerStatefulWidget {
   const Dashboard({ super.key });
 
   @override
-  State<Dashboard> createState() {
+  ConsumerState<Dashboard> createState() {
     return _DashboardState();
   }
 }
 
-class _DashboardState extends State<Dashboard> {
+class _DashboardState extends ConsumerState<Dashboard> {
   final List<Resource> _resources = [];
-  late Future<List<Resource>> _loadedItems;
+  // use loadedItems as a reference to reset to 
+  final List<Resource> loadedItems = [];
   final _authService = AuthService();
   final _dataService = DataService();
 
   @override
   void initState() {
     super.initState();
-    _loadedItems = _loadItems();
+    _loadItems();
   }
 
-  Future<List<Resource>> _loadItems() async {
-    final List<Resource> loadedItems = [];
+  void _resetGrid() async {
+    ref.read(gridDataProvider.notifier).setGridData(loadedItems);
+  }
+
+  Future<void> _loadItems() async {
     final loadedItemsQuerySnapshot = await _dataService.loadItemsByUserId(
       _authService.currentUser!.uid,
     );
@@ -43,7 +48,7 @@ class _DashboardState extends State<Dashboard> {
         )
       );
     }
-    return loadedItems;
+    ref.read(gridDataProvider.notifier).setGridData(loadedItems);
   }
 
   void _addItem() async {
@@ -64,10 +69,15 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final gridDataItems = ref.watch(gridDataProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Cases'),
         actions: [
+          ElevatedButton(
+            onPressed: _resetGrid, 
+            child: const Text('Return to dashboard')
+          ),
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: _addItem
@@ -83,27 +93,24 @@ class _DashboardState extends State<Dashboard> {
           )
         ]
       ),
-      body: FutureBuilder<List<Resource>>(
-        future: _loadedItems,
-        builder: (context, snapshot) {
-          // waiting on promise/future
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          // promise/future has been rejected
-          if (snapshot.hasError) {
-            return Center(child: Text(snapshot.error.toString()));
-          }
-          // // future has successfully resolved 
-          if (snapshot.data!.isEmpty) {
-            return  const Center(
-              child: Text('No items added yet.'),
-            );
-          }
-
-          return ResourceGridScreen(items: snapshot.data!);
-        }
-      )
+      body: GridView(
+        padding: const EdgeInsets.all(24),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2, 
+          childAspectRatio: 3 / 2,
+          crossAxisSpacing: 20,
+          mainAxisSpacing: 20,
+        ),
+        children: [
+          for (final item in gridDataItems)
+            ResourceGridItem(
+              resource: item,
+              onSelectResource: () {
+                ref.read(gridDataProvider.notifier).setGridData(gridDataItems.where((item) => item.name == 'item1').toList());
+              }
+          ),
+        ]
+      ),
     );
   }
 }

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:deponator_flutter/screens/auth.dart';
 import 'package:deponator_flutter/widgets/dashboard.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'firebase_options.dart';
 
 bool USE_FIRESTORE_EMULATOR = false;
@@ -21,7 +21,11 @@ void main() async {
       persistenceEnabled: false
     );
   }
-  runApp(const App());
+  runApp(
+    const ProviderScope(
+      child: App()
+    ),
+  );
 }
 
 class App extends StatelessWidget {

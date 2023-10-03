@@ -6,6 +6,7 @@ import 'package:deponator_flutter/services/auth_service.dart';
 import 'package:deponator_flutter/widgets/new_resource.dart';
 import 'package:deponator_flutter/models/resource.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 
 class Dashboard extends ConsumerStatefulWidget {
   const Dashboard({ super.key });
@@ -111,9 +112,77 @@ class _DashboardState extends ConsumerState<Dashboard> {
           ),
         ]
       ),
+      // body: DraggableGridViewBuilder(
+      //   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      //     crossAxisCount: 2, 
+      //     childAspectRatio: 3 / 2,
+      //     crossAxisSpacing: 20,
+      //     mainAxisSpacing: 20,
+      //   ),
+      //   children: <DraggableGridItem>[
+      //     for (final item in gridDataItems)
+      //       DraggableGridItem(
+      //         child: ResourceGridItem(
+      //           resource: item,
+      //           onSelectResource: () {
+      //             ref.read(gridDataProvider.notifier).setGridData(gridDataItems.where((item) => item.name == 'item1').toList());
+      //           }
+      //         ),
+      //       )
+      //   ],
+      //   dragCompletion: (List<DraggableGridItem> list, int beforeIndex, int afterIndex) {
+      //     print( 'onDragAccept: $beforeIndex -> $afterIndex');
+      //   },
+
+      // )
     );
   }
 }
+// flutter pub add flutter_draggable_gridview
+
+// DraggableGridViewBuilder(
+/*
+          This property contains bool value. If this property is false then it works with simple press draggable or 
+          else it works with long press. default value is 'true'.
+ */         
+//         isOnlyLongPress: false, ?
+
+/*
+          With this callback, you have to return a Widget and we will use this widget in feedback. 
+          (feedback -> The widget to show under the pointer when a drag is under way)
+          
+*/
+//         dragFeedback: (List<DraggableGridItem> list, int index) {
+//           return Container(
+//             child: list[index].child,
+//             width: 200,
+//             height: 150,
+//           );
+//         },
+
+/*
+          With this callback, you have to return a PlaceHolderWidget and we will use this widget in place holder.
+*/
+//         dragPlaceHolder: (List<DraggableGridItem> list, int index) {
+//           return PlaceHolderWidget(
+//             child: Container(
+//               color: Colors.white,
+//             ),
+//           );
+//         },
+//       );
+
+/*
+          With this callback, you have to return a Widget and we will display this widget instead of child when drags are under way
+*/
+//         dragChildWhenDragging: (List<DraggableGridItem> list, int index) {
+//           return PlaceHolderWidget(
+//             child: Container(
+//               color: Colors.white,
+//             ),
+//           );
+//         },
+//       );
 
 // void _removeItem(GroceryItem item) async {
 //   final index =  _groceryItems.indexOf(item);
@@ -134,3 +203,4 @@ class _DashboardState extends ConsumerState<Dashboard> {
 //     });
 //   }
 // }
+//

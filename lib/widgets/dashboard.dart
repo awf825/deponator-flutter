@@ -8,6 +8,9 @@ import 'package:deponator_flutter/models/resource.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 
+import 'package:reorderable_grid_view/reorderable_grid_view.dart';
+import 'dart:developer' as developer;
+
 class Dashboard extends ConsumerStatefulWidget {
   const Dashboard({ super.key });
 
@@ -71,6 +74,22 @@ class _DashboardState extends ConsumerState<Dashboard> {
   @override
   Widget build(BuildContext context) {
     final gridDataItems = ref.watch(gridDataProvider);
+
+    Widget buildItem(Resource item) {
+      return Card(
+        key: ValueKey(item.name),
+        child: ResourceGridItem(
+          resource: item,
+          onSelectResource: () {
+            ref.read(gridDataProvider.notifier)
+            .setGridData(
+              gridDataItems.where((item) => item.name == 'item1'
+            ).toList());
+          }
+        )
+      );
+    }
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Cases'),
@@ -94,95 +113,22 @@ class _DashboardState extends ConsumerState<Dashboard> {
           )
         ]
       ),
-      body: GridView(
-        padding: const EdgeInsets.all(24),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2, 
-          childAspectRatio: 3 / 2,
-          crossAxisSpacing: 20,
-          mainAxisSpacing: 20,
+      body: Center(
+        child: ReorderableGridView.count(
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          crossAxisCount: 3,
+          onReorder: (oldIndex, newIndex) {
+              final element = gridDataItems.removeAt(oldIndex);
+              gridDataItems.insert(newIndex, element);
+              ref.read(gridDataProvider.notifier).setGridData(gridDataItems);
+          },
+          children: gridDataItems.map((e) => buildItem(e)).toList(),
         ),
-        children: [
-          for (final item in gridDataItems)
-            ResourceGridItem(
-              resource: item,
-              onSelectResource: () {
-                ref.read(gridDataProvider.notifier).setGridData(gridDataItems.where((item) => item.name == 'item1').toList());
-              }
-          ),
-        ]
       ),
-      // body: DraggableGridViewBuilder(
-      //   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-      //     crossAxisCount: 2, 
-      //     childAspectRatio: 3 / 2,
-      //     crossAxisSpacing: 20,
-      //     mainAxisSpacing: 20,
-      //   ),
-      //   children: <DraggableGridItem>[
-      //     for (final item in gridDataItems)
-      //       DraggableGridItem(
-      //         child: ResourceGridItem(
-      //           resource: item,
-      //           onSelectResource: () {
-      //             ref.read(gridDataProvider.notifier).setGridData(gridDataItems.where((item) => item.name == 'item1').toList());
-      //           }
-      //         ),
-      //       )
-      //   ],
-      //   dragCompletion: (List<DraggableGridItem> list, int beforeIndex, int afterIndex) {
-      //     print( 'onDragAccept: $beforeIndex -> $afterIndex');
-      //   },
-
-      // )
     );
   }
 }
-// flutter pub add flutter_draggable_gridview
-
-// DraggableGridViewBuilder(
-/*
-          This property contains bool value. If this property is false then it works with simple press draggable or 
-          else it works with long press. default value is 'true'.
- */         
-//         isOnlyLongPress: false, ?
-
-/*
-          With this callback, you have to return a Widget and we will use this widget in feedback. 
-          (feedback -> The widget to show under the pointer when a drag is under way)
-          
-*/
-//         dragFeedback: (List<DraggableGridItem> list, int index) {
-//           return Container(
-//             child: list[index].child,
-//             width: 200,
-//             height: 150,
-//           );
-//         },
-
-/*
-          With this callback, you have to return a PlaceHolderWidget and we will use this widget in place holder.
-*/
-//         dragPlaceHolder: (List<DraggableGridItem> list, int index) {
-//           return PlaceHolderWidget(
-//             child: Container(
-//               color: Colors.white,
-//             ),
-//           );
-//         },
-//       );
-
-/*
-          With this callback, you have to return a Widget and we will display this widget instead of child when drags are under way
-*/
-//         dragChildWhenDragging: (List<DraggableGridItem> list, int index) {
-//           return PlaceHolderWidget(
-//             child: Container(
-//               color: Colors.white,
-//             ),
-//           );
-//         },
-//       );
 
 // void _removeItem(GroceryItem item) async {
 //   final index =  _groceryItems.indexOf(item);
